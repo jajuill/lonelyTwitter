@@ -12,6 +12,14 @@ ListView widget - uses arrayAdapter to get info from ArrayList to display on Lis
 ArrayLost - add, clear
 ListView - fonts, colours, clicking things
 ArrayAdapter - know when data changes
+
+Serialization - turning something from a live data file to something that can be transferred... like a file formal
+We use GSON - saves a data structure to a file
+
+right click on the project / build path / add build / libraries / and then go from there to add downloaded libraries to eclipse
+
+I UNIX there are 3 ways to open a file
+1.to read 2.to write 3.to append  using write overwrites everything!!!
 */
 
 
@@ -26,6 +34,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -34,6 +45,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import java.lang.reflect.Type;
+import java.io.OutputStreamWriter;
+
 
 public class LonelyTwitterActivity extends Activity {
 
@@ -80,15 +94,22 @@ public class LonelyTwitterActivity extends Activity {
 	}
 
 	private ArrayList<String> loadFromFile() {//now same type as declaired above
+		Gson gson = new Gson();
 		ArrayList<String> tweets = new ArrayList<String>();
 		try {
 			FileInputStream fis = openFileInput(FILENAME);
+			// https://sites.google.com/site/gson/gson-user-guide 2015-01-21
+			Type dataType = new TypeToken<ArrayList<String>>() {}.getType(); //inheriting from Type, taking no arguments - empty () - taking no changes - empty {} We use this class briefly and this instance and then throw it away
+			InputStreamReader isr = new InputStreamReader(fis);
+			tweets = gson.fromJson(isr, dataType);
+			fis.close();
+			/*
 			BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 			String line = in.readLine();
-			while (line != null) {
+			while (line != null) {//reading loop that looks for end of file
 				tweets.add(line);
-				line = in.readLine();
-			}
+				line = in.readLine(); */
+			
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -101,11 +122,12 @@ public class LonelyTwitterActivity extends Activity {
 	}
 	
 	private void saveInFile(String text, Date date) {
+		Gson gson = new Gson();
 		try {
 			FileOutputStream fos = openFileOutput(FILENAME,
-					Context.MODE_APPEND);
-			fos.write(new String(date.toString() + " | " + text)
-					.getBytes());
+					0); //deletes everything in file since write is used by default
+			OutputStreamWriter osw = new OutputStreamWriter(fos); //ADDED FOR GSON
+			gson.toJson(tweets, osw);//does this work???
 			fos.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
