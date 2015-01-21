@@ -128,6 +128,7 @@ public class LonelyTwitterActivity extends Activity {
 					0); //deletes everything in file since write is used by default
 			OutputStreamWriter osw = new OutputStreamWriter(fos); //ADDED FOR GSON
 			gson.toJson(tweets, osw);//does this work???
+			osw.flush();
 			fos.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
